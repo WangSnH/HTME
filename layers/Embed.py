@@ -234,7 +234,7 @@ class Patch(nn.Module):
         self.stride = stride
 
     def forward(self, x):
-        # x: (B, L, C) -> (B, num_patches, C, k)
+
         return x.unfold(1, self.k, self.stride)
 
 class SpareEmbed3(nn.Module):
@@ -254,16 +254,15 @@ class SpareEmbed3(nn.Module):
 
         batchSize = x.shape[0]
 
-        tmpX = self.patch(x)[:, :self.patch_num, :, :]  # (batch, patch_num, k, c_in)
+        tmpX = self.patch(x)[:, :self.patch_num, :, :]
         tmpX = self.se(tmpX)
-        tmpX = tmpX.reshape(batchSize, self.patch_num, -1).contiguous()  # (batch, patch_num, k*c_in)
-        tmpX = self.P(tmpX)  # (batch, patch_num, 128)
+        tmpX = tmpX.reshape(batchSize, self.patch_num, -1).contiguous()
+        tmpX = self.P(tmpX)
+        tmpX = self.P2(tmpX)
 
-        tmpX = self.P2(tmpX)  # (batch, 128, 16)
-
-        _, tmpX = self.G(tmpX)  # (1, batch, inn)
-        tmpX = tmpX.permute(1, 0, 2).contiguous()  # (batch, 1, inn)
-        tmpX = self.T(tmpX)  # (batch, d_model, inn)
+        _, tmpX = self.G(tmpX)
+        tmpX = tmpX.permute(1, 0, 2).contiguous()
+        tmpX = self.T(tmpX)
         return tmpX
 
 
@@ -281,24 +280,23 @@ class SpareEmbed2(nn.Module):
         self.P = nn.Linear(64 * self.patch_num, self.d_model)
 
     def forward(self, x, x_mark=None):
-        # 输入x shape: (batch, channel, timeLength)
         batchSize = x.shape[0]
         channel = x.shape[1]
         timeLength = x.shape[2]
 
         # 优化：减少permute次数
-        x = x.permute(0, 2, 1).contiguous()  # (batch, timeLength, channel)
-        tmpX = self.patch2(x)  # (batch, timeLength, k, channel)
+        x = x.permute(0, 2, 1).contiguous()
+        tmpX = self.patch2(x)
 
         tmpX = tmpX[:, :self.patch_num, :, :]
         tmpX = tmpX.permute(0, 2, 1, 3).contiguous()
-        tmpX = tmpX.view(-1, 1, self.k)  # (B*C*patch_num, 1, k)
+        tmpX = tmpX.view(-1, 1, self.k)
 
-        tmpX = self.T(tmpX)  # (batch*channel*patch_num, conv_channels, k)
-        tmpX = self.flatten(tmpX)  # (batch*channel*patch_num, conv_channels*k)
-        tmpX = self.P1(tmpX)  # (batch*channel*patch_num, 8)
-        tmpX = tmpX.reshape(batchSize, channel, -1).contiguous()  # (batch, channel, patch_num*8)
-        tmpX = self.P(tmpX)  # (batch, channel, d_model)
+        tmpX = self.T(tmpX)
+        tmpX = self.flatten(tmpX)
+        tmpX = self.P1(tmpX)
+        tmpX = tmpX.reshape(batchSize, channel, -1).contiguous()
+        tmpX = self.P(tmpX)
         hn = tmpX.reshape(batchSize, -1, self.d_model).permute(0, 2, 1).contiguous()
         return hn
 
@@ -320,7 +318,7 @@ class MDataEmbedding(nn.Module):
     def forward(self, x, x_mark):
         alpha = torch.sigmoid(self.weight)
         x = torch.cat((x, x_mark), dim=-1)
-        y =self.dropout(self.spare3(x))# (batch, d_model, inn)
+        y =self.dropout(self.spare3(x))
         x = self.spare2(x.permute(0,2,1))
-        out =  alpha * x + (1 - alpha) * y #alpha * x +
-        return out,alpha * x,(1 - alpha) * y# (batch, d_model, inn)
+        out =  alpha * x + (1 - alpha) * y
+        return out,alpha * x,(1 - alpha) * y

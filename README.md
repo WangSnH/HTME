@@ -1,20 +1,17 @@
 # HTMformer
-This paper introduces Hybrid Temporal and Multivariate Embeddings (HTME) strategy. By combining HTME with the Transformer architecture, we present HTMformer. 
+This paper introduces Hybrid Temporal and Multivariate Embeddings (HTME) strategy. The contributions of this work are as follows:
+1. We propose the Hybrid Temporal and Multivariate Embedding (HTME) strategy. It enables predictors to more effectively leverage reliable multivariate features, while introducing only minimal computational overhead
+2. We introduce a novel forecasting framework, HTMformers, which consistently improves the performance of attention mechanisms in forecasting. The representation HTMformer consistently achieves state-of-the-art performance.
+3. We select five widely-used forecasting models and develop their HTME versions. Extensive experiments demonstrate that HTME consistently enhances the ability of diverse architectures to model complex time series
 ## Updates
 
-## Introduction
-This paper proposes to jointly capture temporal and multivariate features in the embedding layer, thereby yielding semantically rich embedding representations to overcome the inherent limitations of the conventional embedding strategy. 
-![](Introduction.jpg)
-Extensive empirical evaluations are conducted on eight real-world benchmarks spanning application domains.
-Notably, HTMformer consistently achieves state-of-the-art performance across various benchmarks. 
+## HTME
+This paper proposes to jointly capture temporal and multivariate features in the embedding layer, thereby yielding semantically rich embedding representations to overcome the inherent limitations of the CD strategy. 
+![](Introduction.PNG)
 
-<p align="center">
-  <img src="radar.png"  width="300">
-</p>
-
-## Overall Architecture
+## HTMEformer
 The model includes an HTME extractor, a vanilla Transformer encoder layer, and a projection layer. 
-![](myplot4.jpg)
+![](model.PNG)
 
 ## Usage
 
@@ -33,22 +30,9 @@ python run.py
 ## Main results of experiments
 to evaluate the effectiveness of the proposed HTME strategy. We conducted extensive experiments on eight real-world benchmarks.
 ### Performance of HTME strategy
-To assess the effectiveness and scalability of HTME, it is integrated into the Transformer and its variants.
+To assess the effectiveness and scalability of HTME, it is integrated into the different models.
 <p align="center">
   <img src="Promotion.png" width="100%">
-</p>
-
-### Long-term forecasting tasks
-We conduct a comprehensive evaluation of the effectiveness of HTMformer in long-term forecasting. HTMformer outperforms various baselines (Avg Results). 
-<p align="center">
-  <img src="Long.png" width="100%">
-</p>
-
-### Short-term forecasting tasks
-The experimental results on the PEMS (PEMS03, PEMS04, and PEMS08) datasets.
-The proposed HTMformer demonstrates better performance across all three PEMS datasets.
-<p align="center">
-  <img src="Short.png" width="100%">
 </p>
 
 ### Model Efficiency
