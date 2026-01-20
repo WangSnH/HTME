@@ -1,12 +1,13 @@
-# HTMformer
+# HTME
 This paper introduces Hybrid Temporal and Multivariate Embeddings (HTME) strategy. The contributions of this work are as follows:
 1. We propose the Hybrid Temporal and Multivariate Embedding (HTME) strategy. It enables predictors to more effectively leverage reliable multivariate features, while introducing only minimal computational overhead
 2. We introduce a novel forecasting framework, HTMformers, which consistently improves the performance of attention mechanisms in forecasting. The representation HTMformer consistently achieves state-of-the-art performance.
 3. We select five widely-used forecasting models and develop their HTME versions. Extensive experiments demonstrate that HTME consistently enhances the ability of diverse architectures to model complex time series
+
 ## Updates
 
 ## HTME
-This paper proposes to jointly capture temporal and multivariate features in the embedding layer, thereby yielding semantically rich embedding representations to overcome the inherent limitations of the CD strategy. 
+HTME separates a dedicated multivariate feature space for pattern extraction and denoising and then gradually maps the extracted features to the feature space, yielding multidimensional embeddings that convey richer and more reliable sequence representations. 
 ![](Introduction.PNG)
 
 ## HTMEformer
@@ -52,7 +53,6 @@ HTME incurs an additional 2 seconds of computation time and introduces 550K para
 <p align="center">
   <img src="eff.png" width="100%">
 </p>
-
 
 ## Acknowledgement
 
