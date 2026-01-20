@@ -35,11 +35,24 @@ To assess the effectiveness and scalability of HTME, it is integrated into the d
   <img src="Promotion.png" width="100%">
 </p>
 
-### Model Efficiency
-To assess the computational efficiency of HTMformer, we perform a comparative analysis of its training time, GPU memory footprint, and parameter count against state-of-the-art models.
+### Long and Short term forecasting results
+We further compare HTMformer, which adopts the Full-Attention mechanism and serves as a representative of HTMPredictors, with recent state-of-the-art methods
 <p align="center">
-  <img src="Efficiency.jpg" width="100%">
+  <img src="Long.png" width="100%">
 </p>
+
+<p align="center">
+  <img src="Short.png" width="100%">
+</p>
+
+### Model Efficiency
+The time and space complexities of the multivariate feature extraction module are both $O~(LC)$. For each dimension, the computational complexity is linear, which guarantees high efficiency and scalability of HTME. 
+Owing to its carefully designed architecture, the computational overhead introduced by the HTME modul
+HTME incurs an additional 2 seconds of computation time and introduces 550K parameters on the ELC dataset.
+<p align="center">
+  <img src="eff.png" width="100%">
+</p>
+
 
 ## Acknowledgement
 
