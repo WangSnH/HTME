@@ -303,8 +303,7 @@ class Dataset_M4(Dataset):
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=False, inverse=False, timeenc=0, freq='15min',
                  seasonal_patterns='Yearly'):
-        # size [seq_len, label_len, pred_len]
-        # init
+
         self.features = features
         self.target = target
         self.scale = scale
@@ -324,14 +323,13 @@ class Dataset_M4(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        # M4Dataset.initialize()
         if self.flag == 'train':
             dataset = M4Dataset.load(training=True, dataset_file=self.root_path)
         else:
             dataset = M4Dataset.load(training=False, dataset_file=self.root_path)
         training_values = np.array(
             [v[~np.isnan(v)] for v in
-             dataset.values[dataset.groups == self.seasonal_patterns]])  # split different frequencies
+             dataset.values[dataset.groups == self.seasonal_patterns]])
         self.ids = np.array([i for i in dataset.ids[dataset.groups == self.seasonal_patterns]])
         self.timeseries = [ts for ts in training_values]
 
@@ -339,7 +337,7 @@ class Dataset_M4(Dataset):
         insample = np.zeros((self.seq_len, 1))
         insample_mask = np.zeros((self.seq_len, 1))
         outsample = np.zeros((self.pred_len + self.label_len, 1))
-        outsample_mask = np.zeros((self.pred_len + self.label_len, 1))  # m4 dataset
+        outsample_mask = np.zeros((self.pred_len + self.label_len, 1))
 
         sampled_timeseries = self.timeseries[index]
         cut_point = np.random.randint(low=max(1, len(sampled_timeseries) - self.window_sampling_limit),
@@ -572,9 +570,7 @@ class SWATSegLoader(Dataset):
         print("train:", self.train.shape)
 
     def __len__(self):
-        """
-        Number of images in the object dataset.
-        """
+
         if self.flag == "train":
             return (self.train.shape[0] - self.win_size) // self.step + 1
         elif (self.flag == 'val'):
@@ -606,21 +602,19 @@ class UEAloader(Dataset):
         self.root_path = root_path
         self.flag = flag
         self.all_df, self.labels_df = self.load_all(root_path, file_list=file_list, flag=flag)
-        self.all_IDs = self.all_df.index.unique()  # all sample IDs (integer indices 0 ... num_samples-1)
+        self.all_IDs = self.all_df.index.unique()
 
         if limit_size is not None:
             if limit_size > 1:
                 limit_size = int(limit_size)
-            else:  # interpret as proportion if in (0, 1]
+            else:
                 limit_size = int(limit_size * len(self.all_IDs))
             self.all_IDs = self.all_IDs[:limit_size]
             self.all_df = self.all_df.loc[self.all_IDs]
 
-        # use all features
         self.feature_names = self.all_df.columns
         self.feature_df = self.all_df
 
-        # pre_process
         normalizer = Normalizer()
         self.feature_df = normalizer.normalize(self.feature_df)
         print(len(self.all_IDs))
@@ -628,7 +622,7 @@ class UEAloader(Dataset):
     def load_all(self, root_path, file_list=None, flag=None):
 
         if file_list is None:
-            data_paths = glob.glob(os.path.join(root_path, '*'))  # list of all paths
+            data_paths = glob.glob(os.path.join(root_path, '*'))
         else:
             data_paths = [os.path.join(root_path, p) for p in file_list]
         if len(data_paths) == 0:
@@ -640,7 +634,7 @@ class UEAloader(Dataset):
             pattern='*.ts'
             raise Exception("No .ts files found using pattern: '{}'".format(pattern))
 
-        all_df, labels_df = self.load_single(input_paths[0])  # a single file contains dataset
+        all_df, labels_df = self.load_single(input_paths[0])
 
         return all_df, labels_df
 
@@ -650,19 +644,19 @@ class UEAloader(Dataset):
         labels = pd.Series(labels, dtype="category")
         self.class_names = labels.cat.categories
         labels_df = pd.DataFrame(labels.cat.codes,
-                                 dtype=np.int8)  # int8-32 gives an error when using nn.CrossEntropyLoss
+                                 dtype=np.int8)
 
         lengths = df.applymap(
-            lambda x: len(x)).values  # (num_samples, num_dimensions) array containing the length of each series
+            lambda x: len(x)).values
 
         horiz_diffs = np.abs(lengths - np.expand_dims(lengths[:, 0], -1))
 
-        if np.sum(horiz_diffs) > 0:  # if any row (sample) has varying length across dimensions
+        if np.sum(horiz_diffs) > 0:
             df = df.applymap(subsample)
 
         lengths = df.applymap(lambda x: len(x)).values
         vert_diffs = np.abs(lengths - np.expand_dims(lengths[0, :], 0))
-        if np.sum(vert_diffs) > 0:  # if any column (dimension) has varying length across samples
+        if np.sum(vert_diffs) > 0:
             self.max_seq_len = int(np.max(lengths[:, 0]))
         else:
             self.max_seq_len = lengths[0, 0]
@@ -670,7 +664,6 @@ class UEAloader(Dataset):
         df = pd.concat((pd.DataFrame({col: df.loc[row, col] for col in df.columns}).reset_index(drop=True).set_index(
             pd.Series(lengths[row, 0] * [row])) for row in range(df.shape[0])), axis=0)
 
-        # Replace NaN values
         grp = df.groupby(by=df.index)
         df = grp.transform(interpolate_missing)
 
@@ -709,12 +702,11 @@ class Dataset_PEMS(Dataset):
     def __init__(self,args, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, timeenc=0, freq='h', seasonal_patterns=None):
-        # size [seq_len, label_len, pred_len]
-        # info
+
         self.seq_len = size[0]
         self.label_len = size[1]
         self.pred_len = size[2]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
@@ -777,12 +769,10 @@ class Dataset_Solar(Dataset):
     def __init__(self,args, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, timeenc=0, freq='h', seasonal_patterns=None):
-        # size [seq_len, label_len, pred_len]
-        # info
         self.seq_len = size[0]
         self.label_len = size[1]
         self.pred_len = size[2]
-        # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
