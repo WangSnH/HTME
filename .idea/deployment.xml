@@ -2,7 +2,7 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="zx@10.68.97.99:22 password">
+      <paths name="">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
